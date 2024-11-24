@@ -1,5 +1,5 @@
 {
-  "name": "@proghours/online-judge-scraper",
+  "name": "online-judge-scraper",
   "version": "0.1.0",
   "type": "commonjs",
   "main": "./index.cjs",

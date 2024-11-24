@@ -1,96 +1,177 @@
-# OnlineJudgeScraper
+## online-judge-scraper
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+`online-judge-scraper` is a library designed to extract information from various online judges. It provides:
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+- Problem Information: Fetches problem details like `name`, `problem_id`, `contest_id`, `tags`, `difficulty` etc.
+- Submission Information: Retrieves user submission data from supported platforms
+- User Information: (WIP) Will provide user profile and statistics
+- Contest Information: (WIP) Will provide contest details and standings
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+In cases where an API is not available, `online-judge-scraper` utilizes web crawling techniques to gather the necessary data.
 
-## Run tasks
+### Installation
 
-To run tasks with Nx use:
+The library is available online and can be installed via npm
 
-```sh
-npx nx <target> <project-name>
+```bash
+npm i online-judge-scraper
 ```
 
-For example:
+### Basic Usage
 
-```sh
-npx nx build myproject
+#### Fetch information about a problem
+
+```js
+import { fetchProblem } from 'online-judge-scraper';
+
+async function main() {
+  const data = await fetchProblem('https://codeforces.com/problemset/problem/1879/D');
+
+  // do something with the data
+  console.log(data);
+}
+
+main();
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+If you are using CommonJS modules, you can also use the `require` function to import the library. The returned object from `fetchProblem` will satisfy the following interface.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
+```ts
+interface ProblemData {
+  pid: string;
+  name: string;
+  url: string;
+  tags: string[];
+  difficulty: number;
+}
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+#### Fetch Submissions of an User
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
+```js
+import { fetchUserSubmissions } from 'online-judge-scraper';
 
-# Generate a library
-npx nx g @nx/react:lib some-lib
+async function main() {
+  const data = await fetchUserSubmissions('CODEFORCES', {
+    handle: 'naimul_haque',
+  });
+
+  // data is of type CfSubmissions
+  // do something with the data
+  console.log(data.totalSolved);
+  console.log(data.submissions);
+}
+
+main();
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+In order to fetch submissions from CodeChef, we need to pass in the 2 extra properties `clientId` and `secret`, so that our scraper can talk with the CodeChef APIs.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```js
+import { fetchUserSubmissions } from 'online-judge-scraper';
 
-## Set up CI!
+async function main() {
+  const data = await fetchUserSubmissions('CODECHEF', {
+    handle: 'naimul_haque',
+    clientID: 'CODECHEF_API_CLIENT_ID',
+    secret: 'CODECHEF_API_SECRET',
+  });
 
-### Step 1
+  // data is of type CcSubmissions
+  // do something with the data
+  console.log(data.totalSolved);
+  console.log(data.submissions);
+}
 
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+main();
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+Additionally, you can also pass an optional `contestId` to fetch user submissions from only that contestId. This works simillarly for CodeChef as well.
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```js
+import { fetchUserSubmissions } from 'online-judge-scraper';
 
-### Step 2
+async function main() {
+  const data = await fetchUserSubmissions('CODEFORCES', {
+    handle: 'naimul_haque',
+    contestId: '1742',
+  });
 
-Use the following command to configure a CI workflow for your workspace:
+  // data is of type CfSubmissions
+  // do something with the data
+  console.log(data.totalSolved);
+  console.log(data.submissions);
+}
 
-```sh
-npx nx g ci-workflow
+main();
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Currently, `fetchUserSubmissions` only supports Codeforces and CodeChef. The returned object from `fetchUserSubmissions` will return one of the following interfaces. TypeScript will map the proper return type, based on the first parameter.
 
-## Install Nx Console
+```ts
+type CfSubmissions = {
+  totalSolved: number;
+  submissions: Array<{
+    id: number;
+    pid: string;
+    name: string;
+    url: string;
+    difficulty: number;
+    tags: string[];
+    contestId: number;
+    createdAt: Date;
+    verdict: Verdict;
+  }>;
+};
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+type CcSubmissions = {
+  totalSolved: number;
+  submissions: Array<{
+    id: number;
+    pid: string;
+    url: string;
+    contestId: string;
+    createdAt: Date;
+    verdict: Verdict;
+    solvedDuringContest: boolean;
+  }>;
+};
+```
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Online Judge Support
 
-## Useful links
+The library currently supports 13 online judges.
 
-Learn more:
+1. [Codeforces](https://codeforces.com)
+2. [CodeChef](https://www.codechef.com)
+3. [CSES](https://cses.fi)
+4. [Online Judge](https://onlinejudge.org)
+5. [Toph](https://toph.co)
+6. [SPOJ](https://www.spoj.com)
+7. [HackerRank](https://www.hackerrank.com)
+8. [LightOJ](http://lightoj.com)
+9. [AtCoder](https://atcoder.jp)
+10. [EOlymp](https://www.eolymp.com)
+11. [LeetCode](https://leetcode.com)
+12. [Timus Online Judge](http://acm.timus.ru)
+13. [Kattis](https://open.kattis.com)
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Test Coverage
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Each online judge is covered by individual test files. The tests could break if the 3rd party APIs or web pages changes. For example, the `codeforces.spec.ts` file contains test cases specifically designed for the Codeforces scraper. Similarly, we have `.spec.ts` files for all other online judges.
+
+#### Running All Tests
+
+To run all the tests project, you can execute the following command:
+
+```bash
+nx run scraper:test
+```
+
+#### Running Individual Test Files
+
+If you wish to run tests for a specific online judge, you can use the following command:
+
+```bash
+nx run scraper:test --testFile=packages/scraper/src/__test__/codeforces.spec.ts
+```

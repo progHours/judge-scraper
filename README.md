@@ -1,20 +1,32 @@
-## online-judge-scraper
+## Online Judge Scraper
 
-`online-judge-scraper` is a library designed to extract information from various online judges. It provides:
+`@proghours/online-judge-scraper` is a library that helps you to extract information easily from various online judges. It provides:
 
 - Problem Information: Fetches problem details like `name`, `problem_id`, `contest_id`, `tags`, `difficulty` etc.
 - Submission Information: Retrieves user submission data from supported platforms
 - User Information: (WIP) Will provide user profile and statistics
 - Contest Information: (WIP) Will provide contest details and standings
 
-In cases where an API is not available, `online-judge-scraper` utilizes web crawling techniques to gather the necessary data.
+In cases where an API is not available, `@proghours/online-judge-scraper` utilizes web crawling techniques to gather the necessary data.
 
 ### Installation
 
 The library is available online and can be installed via npm
 
 ```bash
-npm i online-judge-scraper
+npm i @proghours/online-judge-scraper
+```
+
+With yarn:
+
+```bash
+yarn add @proghours/online-judge-scraper
+```
+
+With pnpm:
+
+```bash
+pnpm add @proghours/online-judge-scraper
 ```
 
 ### Basic Usage
@@ -22,10 +34,10 @@ npm i online-judge-scraper
 #### Fetch information about a problem
 
 ```js
-import { fetchProblem } from 'online-judge-scraper';
+import { fetchProblemData } from '@proghours/online-judge-scraper';
 
 async function main() {
-  const data = await fetchProblem('https://codeforces.com/problemset/problem/1879/D');
+  const data = await fetchProblemData('https://codeforces.com/problemset/problem/1879/D');
 
   // do something with the data
   console.log(data);
@@ -34,7 +46,7 @@ async function main() {
 main();
 ```
 
-If you are using CommonJS modules, you can also use the `require` function to import the library. The returned object from `fetchProblem` will satisfy the following interface.
+If you are using CommonJS modules, you can also use the `require` function to import the library. The returned object from `fetchProblemData` will satisfy the following interface.
 
 ```ts
 interface ProblemData {
@@ -49,14 +61,13 @@ interface ProblemData {
 #### Fetch Submissions of an User
 
 ```js
-import { fetchUserSubmissions } from 'online-judge-scraper';
+import { fetchUserSubmissions } from '@proghours/online-judge-scraper';
 
 async function main() {
   const data = await fetchUserSubmissions('CODEFORCES', {
     handle: 'naimul_haque',
   });
 
-  // data is of type CfSubmissions
   // do something with the data
   console.log(data.totalSolved);
   console.log(data.submissions);
@@ -68,7 +79,7 @@ main();
 In order to fetch submissions from CodeChef, we need to pass in the 2 extra properties `clientId` and `secret`, so that our scraper can talk with the CodeChef APIs.
 
 ```js
-import { fetchUserSubmissions } from 'online-judge-scraper';
+import { fetchUserSubmissions } from '@proghours/online-judge-scraper';
 
 async function main() {
   const data = await fetchUserSubmissions('CODECHEF', {
@@ -77,7 +88,6 @@ async function main() {
     secret: 'CODECHEF_API_SECRET',
   });
 
-  // data is of type CcSubmissions
   // do something with the data
   console.log(data.totalSolved);
   console.log(data.submissions);
@@ -89,7 +99,7 @@ main();
 Additionally, you can also pass an optional `contestId` to fetch user submissions from only that contestId. This works simillarly for CodeChef as well.
 
 ```js
-import { fetchUserSubmissions } from 'online-judge-scraper';
+import { fetchUserSubmissions } from '@proghours/online-judge-scraper';
 
 async function main() {
   const data = await fetchUserSubmissions('CODEFORCES', {
@@ -97,7 +107,6 @@ async function main() {
     contestId: '1742',
   });
 
-  // data is of type CfSubmissions
   // do something with the data
   console.log(data.totalSolved);
   console.log(data.submissions);
@@ -106,37 +115,7 @@ async function main() {
 main();
 ```
 
-Currently, `fetchUserSubmissions` only supports Codeforces and CodeChef. The returned object from `fetchUserSubmissions` will return one of the following interfaces. TypeScript will map the proper return type, based on the first parameter.
-
-```ts
-type CfSubmissions = {
-  totalSolved: number;
-  submissions: Array<{
-    id: number;
-    pid: string;
-    name: string;
-    url: string;
-    difficulty: number;
-    tags: string[];
-    contestId: number;
-    createdAt: Date;
-    verdict: Verdict;
-  }>;
-};
-
-type CcSubmissions = {
-  totalSolved: number;
-  submissions: Array<{
-    id: number;
-    pid: string;
-    url: string;
-    contestId: string;
-    createdAt: Date;
-    verdict: Verdict;
-    solvedDuringContest: boolean;
-  }>;
-};
-```
+Note: Currently, `fetchUserSubmissions` only supports Codeforces and CodeChef.
 
 ### Online Judge Support
 
